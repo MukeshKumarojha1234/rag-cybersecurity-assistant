@@ -1,0 +1,36 @@
+requests>=2.31
+pydantic>=2.6
+
+# Used only by src/data_sources/internal_sop.py to parse .pdf / .docx SOPs.
+pypdf>=4.0
+python-docx>=1.1
+
+# Node 3 (embedding & indexing). fastembed runs on onnxruntime, not torch —
+# on Windows hosts where an Application Control policy blocks torch's
+# native DLLs (c10.dll etc.), onnxruntime's are unaffected.
+numpy>=1.26
+fastembed>=0.4
+rank-bm25>=0.2
+
+# Node 4 (retrieval & re-ranking). fastembed has no cross-encoder, so the
+# re-ranker is wired directly onto onnxruntime + tokenizers (pure Rust
+# bindings, not blocked by the same Application Control policy as torch).
+onnxruntime>=1.17
+tokenizers>=0.19
+huggingface-hub>=0.23
+
+# Node 5 (grounded generation). Requires ANTHROPIC_API_KEY to call Claude;
+# falls back to a StubGenerator for wiring tests when it's unset.
+anthropic>=0.40
+
+# Optional free-tier alternative to AnthropicGenerator. Requires GROQ_API_KEY
+# (free at console.groq.com); used only if ANTHROPIC_API_KEY is unset.
+groq>=0.11
+
+# Node 8 (deployment & monitoring) — the API/UI layer.
+fastapi>=0.115
+uvicorn>=0.30
+python-multipart>=0.0.9
+
+# Loads API keys and other settings from a local .env file.
+python-dotenv>=1.0

@@ -1,0 +1,9 @@
+.env
+.git
+.gitignore
+.claude/
+__pycache__/
+*.pyc
+data/query_log.sqlite3
+Rag based workflow.pdf
+rag_app_three_layer_architecture.png

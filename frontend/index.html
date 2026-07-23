@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SentinelRAG — Cybersecurity Assistant</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark">◆</span>
+      <div class="brand-text">
+        <h1>SentinelRAG</h1>
+        <p>Cybersecurity Assistant</p>
+      </div>
+    </div>
+
+    <button class="new-chat-btn" id="newChatBtn">
+      <span>+</span> New session
+    </button>
+
+    <div class="sidebar-section">
+      <h2>Data sources</h2>
+      <label class="toggle-row">
+        <input type="checkbox" class="source-toggle" value="CVE/NVD" checked>
+        <span class="toggle-swatch swatch-cve"></span>
+        CVE / NVD feeds
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" class="source-toggle" value="MITRE ATT&CK" checked>
+        <span class="toggle-swatch swatch-mitre"></span>
+        MITRE ATT&amp;CK
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" class="source-toggle" value="ICS-CERT" checked>
+        <span class="toggle-swatch swatch-ics"></span>
+        ICS-CERT advisories
+      </label>
+      <label class="toggle-row">
+        <input type="checkbox" class="source-toggle" value="Internal SOP" checked>
+        <span class="toggle-swatch swatch-sop"></span>
+        Internal SOPs
+      </label>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Pipeline status</h2>
+      <ul class="pipeline-list" id="pipelineList">
+        <li data-stage="ingest"><span class="dot"></span>Data sources</li>
+        <li data-stage="chunk"><span class="dot"></span>Preprocessing &amp; chunking</li>
+        <li data-stage="index"><span class="dot"></span>Embedding &amp; indexing</li>
+        <li data-stage="retrieve"><span class="dot"></span>Retrieval &amp; re-ranking</li>
+        <li data-stage="generate" class="group-gen"><span class="dot"></span>Grounded generation</li>
+        <li data-stage="guardrail" class="group-gen"><span class="dot"></span>Guardrails &amp; safety</li>
+        <li data-stage="eval" class="group-gen"><span class="dot"></span>Evaluation</li>
+        <li data-stage="deploy" class="group-gen"><span class="dot"></span>Deployment &amp; monitoring</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-pill" id="connectionStatus">
+        <span class="pulse"></span> Backend: mock mode
+      </div>
+    </div>
+  </aside>
+
+  <!-- Chat panel -->
+  <main class="chat-panel">
+    <header class="chat-header">
+      <button class="icon-btn mobile-only" id="toggleSidebarBtn" aria-label="Toggle sidebar">☰</button>
+      <div class="chat-header-title">
+        <h2>Threat &amp; Vulnerability Assistant</h2>
+        <p id="pipelineStageLabel">Idle — awaiting query</p>
+      </div>
+      <button class="icon-btn mobile-only" id="toggleSourcesBtn" aria-label="Toggle sources panel">▤</button>
+    </header>
+
+    <div class="messages" id="messages">
+      <div class="message assistant">
+        <div class="avatar assistant-avatar">S</div>
+        <div class="bubble">
+          <p>Hello, I'm SentinelRAG. Ask me about a CVE, an ATT&CK technique, an ICS-CERT advisory, or an internal SOP — I'll answer strictly from retrieved sources and cite them.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="response-length-row" id="responseLengthRow">
+        <span class="response-length-edge">Short</span>
+        <input type="range" id="responseLengthSlider" class="response-length-slider" min="1" max="5" step="1" value="3" aria-label="Response length">
+        <span class="response-length-edge">Detailed</span>
+        <span class="response-length-value" id="responseLengthValue">Balanced</span>
+      </div>
+      <div class="attached-file-chip" id="attachedChip" hidden>
+        <span class="file-icon">📄</span>
+        <span class="file-name" id="attachedFileName"></span>
+        <span class="file-size" id="attachedFileSize"></span>
+        <button class="remove-file-btn" id="removeFileBtn" aria-label="Remove attached file">✕</button>
+      </div>
+      <div class="composer-row">
+        <button id="attachBtn" class="icon-btn attach-btn" aria-label="Attach document" title="Attach a document for this question">📎</button>
+        <input type="file" id="fileInput" accept=".pdf,.txt,.md,.docx,.csv,.log" hidden>
+        <textarea id="queryInput" placeholder="Ask about a vulnerability, technique, or procedure…" rows="1"></textarea>
+        <button id="sendBtn" class="send-btn" aria-label="Send">➤</button>
+      </div>
+    </div>
+    <p class="composer-hint">SentinelRAG answers only from retrieved documents. Exploit or attack-execution requests will be refused. Attach a document (📎) to ask questions grounded in that file for this session.</p>
+  </main>
+
+  <!-- Sources panel -->
+  <aside class="sources-panel" id="sourcesPanel">
+    <div class="sources-header">
+      <h2>Retrieved sources</h2>
+      <button class="icon-btn desktop-hide" id="closeSourcesBtn">✕</button>
+    </div>
+    <div class="confidence-block" id="confidenceBlock" hidden>
+      <div class="confidence-header">
+        <span class="confidence-label">Faithfulness confidence</span>
+        <span class="confidence-turn" id="confidenceTurnLabel">Q1 of 1</span>
+      </div>
+      <div class="confidence-bar"><div class="confidence-fill" id="confidenceFill"></div></div>
+      <span class="confidence-value" id="confidenceValue">—</span>
+      <input type="range" class="confidence-slider" id="confidenceSlider" min="1" max="1" value="1" step="1" aria-label="Browse confidence by question">
+      <p class="confidence-query" id="confidenceQueryLabel" title=""></p>
+    </div>
+    <div class="sources-list" id="sourcesList">
+      <p class="sources-empty">No sources retrieved yet. Ask a question to see the hybrid search + re-rank results here.</p>
+    </div>
+  </aside>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
