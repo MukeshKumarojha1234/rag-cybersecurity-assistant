@@ -1,13 +1,3 @@
----
-title: SentinelRAG
-emoji: 🛡️
-colorFrom: blue
-colorTo: teal
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # SentinelRAG
 
 A retrieval-augmented cybersecurity assistant. Ask about a CVE, a MITRE ATT&CK

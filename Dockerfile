@@ -7,11 +7,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Hugging Face Spaces (Docker SDK) expects the app to listen on 7860.
+# Render's web services expect the app to listen on port 10000 by default.
 ENV API_HOST=0.0.0.0 \
-    API_PORT=7860 \
+    API_PORT=10000 \
     PYTHONUNBUFFERED=1
 
-EXPOSE 7860
+EXPOSE 10000
 
 CMD ["python", "server.py"]
